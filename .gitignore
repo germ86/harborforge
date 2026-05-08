@@ -96,3 +96,18 @@ tmp/
 *.tmp
 *.bak
 *.local
+
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+
+# Builds
+dist/
+node_modules/
