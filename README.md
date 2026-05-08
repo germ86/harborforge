@@ -1,121 +1,66 @@
-# harborforge
-Industrial Shipyard & Maritime Management Simulator
+# HarborForge
 
-## Projektbeschreibung (Phase 1)
-Harborforge ist in Phase 1 ein spielbarer Vertical Slice für ein maritimes Management-Spiel:
-- Du verwaltest Aufträge in einer Werft.
-- Zeit vergeht in Tagen und beeinflusst den Projektfortschritt.
-- Abgeschlossene Aufträge führen zu einer Auszahlung, die im UI sichtbar wird.
+HarborForge is an Angular + Firebase project. This phase focuses on **build/deploy reliability** and CI/CD stability.
 
-Der Fokus in dieser Phase liegt auf einem stabilen Kern-Loop, Firebase-Integration und reproduzierbaren Build-/Deployment-Prozessen.
+## Required project ID
+- **Firebase Project ID:** `harborforge-412b3`
 
-## Voraussetzungen
-- **Node.js 20 LTS** (empfohlen; mindestens Node 18.18+ für Vite 5).
-- **npm** (wird mit Node installiert).
-
-Prüfen:
-```bash
-node -v
-npm -v
-```
-
-## Lokale Entwicklung
-Installiere Abhängigkeiten und starte den Dev-Server:
-
-```bash
-npm install
-npm run dev
-```
-
-Produktions-Build lokal prüfen:
-
-```bash
-npm run build
-```
-
-## Benötigte `.env`-Variablen
-Lege lokal eine `.env` (oder `.env.local`) mit folgenden Variablen an:
-
-```env
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
-VITE_FIREBASE_MEASUREMENT_ID=
-```
-
-> Hinweis: Leere Werte führen typischerweise dazu, dass Firebase nicht korrekt initialisiert wird.
-
-## Core-Gameplay-Loop (für Tester)
-1. **Auftrag annehmen**: Im Spiel einen verfügbaren Auftrag starten.
-2. **Tage fortschreiten**: Mehrere Tage simulieren/weiterklicken und den Fortschritt beobachten.
-3. **Abschluss + Auszahlung**: Auf Abschlussstatus achten und prüfen, ob die Auszahlung im HUD/Statusbereich verbucht wird.
-
-## Firebase Hosting Deployment-Flow
-
-### Lokal (manuell)
-1. `.env`-Variablen setzen.
-2. Build erzeugen:
+## Local setup
+1. Install dependencies:
    ```bash
    npm install
+   ```
+2. Start local dev server:
+   ```bash
+   npm run start
+   ```
+3. Build locally:
+   ```bash
    npm run build
    ```
-3. Bei Bedarf lokal Hosting testen (Firebase CLI erforderlich):
-   ```bash
-   firebase emulators:start --only hosting
-   ```
-4. Deployment ausführen:
-   ```bash
-   firebase deploy --only hosting
-   ```
 
-### GitHub Actions (automatisch)
-Die Pipeline in `.github/workflows/firebase-hosting.yml` arbeitet in zwei Stufen:
-- **build-and-test**: `npm ci` + `npm run build` und Verifikation, dass `dist/` erzeugt wurde.
-- **deploy**: läuft nur außerhalb von Pull Requests, baut erneut und deployed auf Firebase Hosting.
+## Environment variables
+Copy `.env.example` to `.env.local` and fill values:
 
-Wichtig:
-- `package-lock.json` muss committed sein (`npm ci`-Anforderung).
-- GitHub Repository Secrets müssen gesetzt sein.
+```env
+NG_APP_FIREBASE_API_KEY=
+NG_APP_FIREBASE_AUTH_DOMAIN=
+NG_APP_FIREBASE_PROJECT_ID=
+NG_APP_FIREBASE_STORAGE_BUCKET=
+NG_APP_FIREBASE_MESSAGING_SENDER_ID=
+NG_APP_FIREBASE_APP_ID=
+NG_APP_FIREBASE_MEASUREMENT_ID=
+```
 
-#### Erforderliche GitHub Secrets
-- `FIREBASE_SERVICE_ACCOUNT_HARBORFORGE` (Service-Account-JSON für Firebase Hosting Deployments)
-- `VITE_FIREBASE_API_KEY`
-- `VITE_FIREBASE_AUTH_DOMAIN`
-- `VITE_FIREBASE_PROJECT_ID`
-- `VITE_FIREBASE_STORAGE_BUCKET`
-- `VITE_FIREBASE_MESSAGING_SENDER_ID`
-- `VITE_FIREBASE_APP_ID`
-- `VITE_FIREBASE_MEASUREMENT_ID`
+### Important security note
+Firebase Web config values are **frontend configuration**, not backend secrets. Do not commit service-account keys, private keys, or other real secrets.
 
-## Troubleshooting
+## Firebase Hosting
+- Hosting config is in `firebase.json`.
+- Public directory is set to Angular browser output: `dist/harborforge/browser`.
+- SPA routing rewrite points all routes to `index.html`.
 
-### 1) Fehlende Secrets in GitHub Actions
-**Symptome:** Workflow scheitert beim Build oder Deploy, ENV-Werte sind `undefined`.
+Manual deploy:
+```bash
+npm ci
+npm run build
+firebase deploy --project harborforge-412b3 --only hosting
+```
 
-**Lösung:**
-- Unter *Repository → Settings → Secrets and variables → Actions* prüfen, ob alle oben gelisteten Secrets existieren.
-- Secret-Namen exakt übernehmen (inkl. Groß-/Kleinschreibung).
+## Cloud Build
+Cloud Build pipeline is defined in `cloudbuild.yaml` and performs:
+1. `npm ci`
+2. `npm run build`
+3. `firebase deploy --project=harborforge-412b3 --only=hosting`
 
-### 2) Build-Fehler bei `npm run build`
-**Symptome:** TypeScript-/Vite-Fehler oder `npm ci` schlägt in CI fehl.
-
-**Lösung:**
-- Lokal einmal sauber installieren:
-  ```bash
-  rm -rf node_modules
-  npm install
-  npm run build
-  ```
-- Node-Version auf 20 LTS angleichen.
-- Prüfen, ob `package-lock.json` aktuell und committed ist.
-
-### 3) Leere oder ungültige `VITE_FIREBASE_*`-Werte
-**Symptome:** Firebase initialisiert nicht, leere Oberfläche/Runtime-Fehler in der Konsole.
-
-**Lösung:**
-- `.env` auf Vollständigkeit prüfen.
-- Keine Anführungszeichen/Leerzeichenfehler in den Werten.
-- Dev-Server nach Änderungen an `.env` neu starten (`npm run dev`).
+## CI/CD acceptance checks
+The pipeline/repo should satisfy:
+1. `npm ci` succeeds.
+2. `npm run build` succeeds.
+3. `dist/harborforge/browser` exists after build.
+4. `firebase.json` points to `dist/harborforge/browser`.
+5. `cloudbuild.yaml` exists with install/build/deploy steps.
+6. `.gitignore` excludes generated files (`dist`, `node_modules`, `.angular`, coverage, caches, logs).
+7. `package-lock.json` is committed.
+8. No generated artifacts are tracked.
+9. This README documents setup and deployment flow.
