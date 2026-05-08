@@ -1,13 +1,18 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './firebase/init';
 import Dashboard from './components/Dashboard/Dashboard';
-import { createInitialGameState } from './game/state/createInitialGameState';
 import { Contract } from './game/models';
 import { acceptContract } from './game/systems/contractSystem';
 import { advanceDay } from './game/systems/timeSystem';
+import { loadGameState, resetGameState, saveGameState } from './game/state/gameStateStorage';
 
 export default function App() {
-  const [gameState, setGameState] = useState(createInitialGameState);
+  const [gameState, setGameState] = useState(loadGameState);
+
+
+  useEffect(() => {
+    saveGameState(gameState);
+  }, [gameState]);
 
   const availableContracts = useMemo(
     () => gameState.contracts.filter((contract) => contract.status === 'available'),
@@ -48,7 +53,10 @@ export default function App() {
       activeContracts={activeContracts}
       onAcceptContract={(contractId) => setGameState((state) => acceptContract(state, contractId))}
       onAdvanceDay={() => setGameState((state) => advanceDay(state))}
-      onResetGame={() => setGameState(createInitialGameState())}
+      onResetGame={() => {
+        resetGameState();
+        setGameState(loadGameState());
+      }}
       getAcceptanceIssues={getAcceptanceIssues}
     />
   );
