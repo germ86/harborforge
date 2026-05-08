@@ -1,28 +1,98 @@
-# Angular specific
+# =====================================================
+# HarborForge .gitignore
+# Angular + Firebase + Capacitor
+# =====================================================
+
+# -----------------------------------------------------
+# Angular build output
+# -----------------------------------------------------
 /dist/
 /out-tsc/
-/tmp/
 /coverage/
-/e2e/test-output/
 /.angular/
-.angular/
+/tmp/
+/.cache/
 
-# Node modules and dependency files
-/node_modules/
-/package-lock.json
-/yarn.lock
-
-# Environment files
-/.env
-
-# Angular CLI and build artefacts
+# Angular CLI legacy
 /.angular-cli.json
 /.ng/
 
-# TypeScript cache
-*.tsbuildinfo
+# -----------------------------------------------------
+# Node dependencies
+# -----------------------------------------------------
+/node_modules/
 
+# -----------------------------------------------------
 # Logs
+# -----------------------------------------------------
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+
+# -----------------------------------------------------
+# TypeScript
+# -----------------------------------------------------
+*.tsbuildinfo
+
+# -----------------------------------------------------
+# Environment files
+# -----------------------------------------------------
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Angular environments
+/src/environments/environment.ts
+/src/environments/environment.prod.ts
+
+# Firebase local/emulator
+firebase-debug.log
+firebase-export/
+.firebaserc.local
+
+# -----------------------------------------------------
+# IDE / Editors
+# -----------------------------------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+*.orig
+
+# -----------------------------------------------------
+# Operating System Files
+# -----------------------------------------------------
+.DS_Store
+Thumbs.db
+
+# -----------------------------------------------------
+# Testing
+# -----------------------------------------------------
+/test-results/
+/playwright-report/
+/e2e/test-output/
+
+# -----------------------------------------------------
+# Capacitor / Android
+# -----------------------------------------------------
+android/.gradle/
+android/build/
+android/app/build/
+
+# Capacitor generated
+android/capacitor-cordova-android-plugins/
+
+# -----------------------------------------------------
+# Temporary / local data
+# -----------------------------------------------------
+savegames/
+temp/
+tmp/
+*.tmp
+*.bak
+*.local
