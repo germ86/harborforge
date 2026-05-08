@@ -1,4 +1,4 @@
-import { GameState } from '../models';
+import { Contract, GameState } from '../models';
 
 export const advanceDay = (state: GameState): GameState => {
   let gainedMoney = 0;
@@ -6,7 +6,7 @@ export const advanceDay = (state: GameState): GameState => {
   let freedWorkforce = 0;
   let freedDocks = 0;
 
-  const contracts = state.contracts.map((contract) => {
+  const contracts: Contract[] = state.contracts.map((contract) => {
     if (contract.status !== 'active') {
       return contract;
     }
