@@ -47,8 +47,6 @@ logs/
 .env.production.local
 
 # Angular environments
-/src/environments/environment.ts
-/src/environments/environment.prod.ts
 
 # Firebase local/emulator
 firebase-debug.log

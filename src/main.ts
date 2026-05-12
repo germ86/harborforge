@@ -4,6 +4,7 @@ import { Component, computed, inject } from '@angular/core';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { provideAuth, getAuth } from '@angular/fire/auth';
 import { provideFirestore, getFirestore } from '@angular/fire/firestore';
+import { provideAnalytics, getAnalytics } from '@angular/fire/analytics';
 import { AsyncPipe, NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from './environments/environment';
@@ -39,4 +40,11 @@ const routes: Routes = [
 @Component({standalone:true,selector:'app-root',imports:[RouterOutlet,RouterLink],template:`<h1>HarborForge</h1><nav><a routerLink='/login'>Login</a><a routerLink='/savegames'>Savegames</a><a routerLink='/dashboard'>Dashboard</a><a routerLink='/inventory'>Inventory</a><a routerLink='/finance'>Finance</a></nav><router-outlet></router-outlet>`})
 class AppComponent {}
 
-bootstrapApplication(AppComponent, {providers:[provideRouter(routes), provideFirebaseApp(() => initializeApp(environment.firebase)), provideAuth(() => getAuth()), provideFirestore(() => getFirestore())]});
+const firebaseProviders = [
+  provideFirebaseApp(() => initializeApp(environment.firebase)),
+  provideAuth(() => getAuth()),
+  provideFirestore(() => getFirestore()),
+  ...(typeof window !== 'undefined' ? [provideAnalytics(() => getAnalytics())] : [])
+];
+
+bootstrapApplication(AppComponent, { providers: [provideRouter(routes), ...firebaseProviders] });
